@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const deploymentSchema = new mongoose.Schema(
   {
-    name: {
+    projectName: {
       type: String,
       required: true,
       trim: true,
@@ -10,80 +10,96 @@ const deploymentSchema = new mongoose.Schema(
     environment: {
       type: String,
       required: true,
-      enum: ["development", "staging", "production"],
+      trim: true,
     },
-    status: {
+    commitId: {
       type: String,
-      enum: ["pending", "in_progress", "success", "failed", "rolled_back"],
-      default: "pending",
-    },
-    version: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-    },
-    repository: {
-      type: String,
+      trim: true,
     },
     branch: {
       type: String,
+      required: true,
       default: "main",
     },
-    commitHash: {
+    triggeredBy: {
       type: String,
+      required: true,
     },
-    deployedBy: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    deployedAt: {
+    startTime: {
       type: Date,
       default: Date.now,
     },
-    completedAt: {
+    endTime: {
       type: Date,
+    },
+    status: {
+      type: String,
+      enum: [
+        "pending",
+        "running",
+        "success",
+        "failed",
+        "cancelled",
+        "rolled_back",
+      ],
+      default: "pending",
+    },
+    logs: [
+      {
+        timestamp: {
+          type: Date,
+          default: Date.now,
+        },
+        message: {
+          type: String,
+        },
+        level: {
+          type: String,
+          enum: ["info", "warning", "error", "debug"],
+          default: "info",
+        },
+      },
+    ],
+    errorMessage: {
+      type: String,
+    },
+    rollbackInfo: {
+      previousDeploymentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Deployment",
+      },
+      rollbackTime: Date,
+      rolledBackBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
     },
     duration: {
       type: Number, // in seconds
     },
-    logs: [
-      {
-        timestamp: { type: Date, default: Date.now },
-        level: { type: String, enum: ["info", "warn", "error", "debug"] },
-        message: String,
-      },
-    ],
     artifacts: [
       {
         name: String,
-        url: String,
+        path: String,
         size: Number,
-        type: String,
       },
     ],
-    metrics: {
-      cpu: Number,
-      memory: Number,
-      responseTime: Number,
+    metadata: {
+      type: Map,
+      of: String,
     },
-    rollbackHistory: [
-      {
-        version: String,
-        rolledBackAt: Date,
-        rolledBackBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        reason: String,
-      },
-    ],
   },
   {
     timestamps: true,
   },
 );
 
-// Index for querying deployments
-deploymentSchema.index({ status: 1, environment: 1 });
-deploymentSchema.index({ deployedAt: -1 });
+// Index for efficient querying
+deploymentSchema.index({ projectName: 1, environment: 1, status: 1 });
+deploymentSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("Deployment", deploymentSchema);
