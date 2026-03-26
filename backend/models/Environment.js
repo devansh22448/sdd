@@ -8,36 +8,52 @@ const environmentSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    type: {
+      type: String,
+      enum: ["development", "staging", "production"],
+      required: true,
+    },
     description: {
       type: String,
-      trim: true,
     },
-    isActive: {
-      type: Boolean,
-      default: true,
+    status: {
+      type: String,
+      enum: ["active", "inactive", "maintenance"],
+      default: "active",
     },
     config: {
-      type: Map,
-      of: String,
+      baseUrl: String,
+      apiEndpoint: String,
+      databaseUrl: String,
+      variables: {
+        type: Map,
+        of: String,
+      },
     },
-    deploymentScript: {
-      type: String,
-      default: "deploy.sh",
+    healthCheck: {
+      enabled: { type: Boolean, default: true },
+      url: String,
+      interval: { type: Number, default: 300 }, // seconds
+      timeout: { type: Number, default: 30 }, // seconds
     },
-    rollbackScript: {
-      type: String,
-      default: "rollback.sh",
+    resources: {
+      cpu: String,
+      memory: String,
+      storage: String,
     },
-    healthCheckUrl: {
-      type: String,
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    timeout: {
-      type: Number,
-      default: 300, // 5 minutes
-    },
-    maxRetries: {
-      type: Number,
-      default: 3,
+    team: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    lastDeployment: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Deployment",
     },
   },
   {
