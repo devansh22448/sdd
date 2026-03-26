@@ -1,14 +1,13 @@
 const StatusBadge = ({ status }) => {
   const statusClasses = {
-    SUCCESS: "bg-green-500/20 text-green-400 border-green-500/30",
-    FAILED: "bg-red-500/20 text-red-400 border-red-500/30",
-    FACCESS: "bg-red-500/20 text-red-400 border-red-500/30",
-    RUNNING: "bg-red-400/20 text-red-400 border-red-400/30",
+    SUCCESS: "bg-devops-success/20 text-devops-success border-devops-success/30",
+    FAILED: "bg-devops-error/20 text-devops-error border-devops-error/30",
+    RUNNING: "bg-devops-purple/20 text-devops-purple border-devops-purple/30",
   };
 
   return (
     <span
-      className={`px-3 py-1 rounded-full text-xs font-medium border ${statusClasses[status] || "bg-gray-500/20 text-gray-400"}`}
+      className={`px-3 py-1 rounded-full text-xs font-medium border ${statusClasses[status] || "bg-devops-text-secondary/20 text-devops-text-secondary"}`}
     >
       {status}
     </span>

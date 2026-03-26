@@ -50,15 +50,22 @@ const Rollback = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-devops-purple">Loading...</div>
+      </div>
+    );
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Rollback</h1>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-devops-text">Rollback</h1>
+        <p className="text-devops-text-secondary mt-1">Revert to a previous deployment version</p>
+      </div>
 
-      <div className="bg-white rounded-lg shadow p-6 max-w-2xl">
-        <h2 className="text-xl font-semibold mb-4">
+      <div className="bg-devops-card rounded-xl border border-devops-border p-6 max-w-2xl">
+        <h2 className="text-xl font-semibold text-devops-text mb-4">
           Select Deployment to Rollback To
         </h2>
 
@@ -67,20 +74,20 @@ const Rollback = () => {
             <div
               key={deployment.id}
               onClick={() => setSelectedDeployment(deployment)}
-              className={`p-4 border rounded-lg cursor-pointer ${
+              className={`p-4 border rounded-lg cursor-pointer transition-all ${
                 selectedDeployment?.id === deployment.id
-                  ? "border-blue-500 bg-blue-50"
-                  : "hover:bg-gray-50"
+                  ? "border-devops-purple bg-devops-purple/10"
+                  : "border-devops-border hover:bg-devops-bg/50"
               }`}
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="font-medium">{deployment.name}</h3>
-                  <p className="text-sm text-gray-500">
+                  <h3 className="font-medium text-devops-text">{deployment.name}</h3>
+                  <p className="text-sm text-devops-text-secondary">
                     Version: {deployment.version}
                   </p>
                 </div>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-devops-text-secondary font-mono">
                   {new Date(deployment.timestamp).toLocaleString()}
                 </span>
               </div>
@@ -91,10 +98,10 @@ const Rollback = () => {
         <button
           onClick={handleRollback}
           disabled={!selectedDeployment || rollingBack}
-          className={`px-6 py-2 rounded-lg ${
+          className={`px-6 py-2 rounded-lg transition-all ${
             !selectedDeployment || rollingBack
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-red-600 hover:bg-red-700 text-white"
+              ? "bg-devops-border text-devops-text-secondary cursor-not-allowed"
+              : "bg-devops-error hover:bg-devops-error/80 text-white shadow-lg shadow-devops-error/20"
           }`}
         >
           {rollingBack ? "Rolling back..." : "Confirm Rollback"}

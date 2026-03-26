@@ -20,24 +20,28 @@ const Profile = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Profile</h1>
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-devops-text">Profile</h1>
+        <p className="text-devops-text-secondary mt-1">Manage your account settings</p>
+      </div>
 
-      <div className="bg-white rounded-lg shadow p-6 max-w-2xl">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+      <div className="bg-devops-card rounded-2xl p-8 border border-devops-border">
+        <div className="flex items-center gap-6 mb-8 pb-8 border-b border-devops-border">
+          <div className="w-24 h-24 bg-gradient-to-br from-devops-purple to-devops-purple-light rounded-full flex items-center justify-center text-white text-3xl font-bold">
             {user?.name?.[0] || "J"}
           </div>
           <div>
-            <h2 className="text-xl font-semibold">{formData.name}</h2>
-            <p className="text-gray-500">{formData.email}</p>
+            <h2 className="text-xl font-semibold text-devops-text">{formData.name}</h2>
+            <p className="text-devops-text-secondary">{formData.email}</p>
+            <p className="text-sm text-devops-text-secondary mt-1">Member since Jan 2024</p>
           </div>
         </div>
 
         {editing ? (
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-devops-text mb-2">
                 Name
               </label>
               <input
@@ -45,11 +49,11 @@ const Profile = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full px-4 py-3 bg-devops-bg border border-devops-border rounded-xl text-devops-text focus:outline-none focus:ring-2 focus:ring-devops-purple focus:border-transparent transition-all"
               />
             </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div>
+              <label className="block text-sm font-medium text-devops-text mb-2">
                 Email
               </label>
               <input
@@ -57,30 +61,50 @@ const Profile = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full px-4 py-3 bg-devops-bg border border-devops-border rounded-xl text-devops-text focus:outline-none focus:ring-2 focus:ring-devops-purple focus:border-transparent transition-all"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-3 pt-2">
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-6 py-3 bg-devops-purple text-white rounded-xl hover:bg-devops-purple-light transition-colors shadow-lg shadow-devops-purple/20"
               >
-                Save
+                Save Changes
               </button>
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                className="px-6 py-3 border border-devops-border text-devops-text rounded-xl hover:bg-devops-bg transition-colors"
               >
                 Cancel
               </button>
             </div>
           </form>
         ) : (
-          <div>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-4 bg-devops-bg rounded-xl">
+                <p className="text-sm text-devops-text-secondary mb-1">Full Name</p>
+                <p className="text-devops-text font-medium">{formData.name}</p>
+              </div>
+              <div className="p-4 bg-devops-bg rounded-xl">
+                <p className="text-sm text-devops-text-secondary mb-1">Email Address</p>
+                <p className="text-devops-text font-medium">{formData.email}</p>
+              </div>
+              <div className="p-4 bg-devops-bg rounded-xl">
+                <p className="text-sm text-devops-text-secondary mb-1">Role</p>
+                <p className="text-devops-text font-medium">Administrator</p>
+              </div>
+              <div className="p-4 bg-devops-bg rounded-xl">
+                <p className="text-sm text-devops-text-secondary mb-1">Status</p>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-devops-success/20 text-devops-success">
+                  Active
+                </span>
+              </div>
+            </div>
             <button
               onClick={() => setEditing(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-6 py-3 bg-devops-purple text-white rounded-xl hover:bg-devops-purple-light transition-colors shadow-lg shadow-devops-purple/20"
             >
               Edit Profile
             </button>

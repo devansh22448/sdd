@@ -47,12 +47,12 @@ const Metrics = () => {
     { name: "Pending", value: 5 },
   ];
 
-  const COLORS = ["#3AAFA9", "#E63946", "#FFD166"];
+  const COLORS = ["#7c3aed", "#ef4444", "#f59e0b"];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-[#3AAFA9]">Loading...</div>
+        <div className="text-devops-purple">Loading...</div>
       </div>
     );
   }
@@ -60,52 +60,52 @@ const Metrics = () => {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#F7F9FA]">Metrics</h1>
-        <p className="text-[#9FB3B6] mt-1">Deployment analytics and insights</p>
+        <h1 className="text-2xl font-bold text-devops-text">Metrics</h1>
+        <p className="text-devops-text-secondary mt-1">Deployment analytics and insights</p>
       </div>
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Deployment Trend Chart */}
-        <div className="bg-[#0F2E34] rounded-xl border border-[#172A3A] p-6">
-          <h2 className="text-lg font-semibold text-[#FFD166] mb-4">
+        <div className="bg-devops-card rounded-xl border border-devops-border p-6">
+          <h2 className="text-lg font-semibold text-devops-purple-light mb-4">
             Deployment Trend
           </h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={deploymentTrendData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#172A3A" />
-              <XAxis dataKey="name" stroke="#9FB3B6" />
-              <YAxis stroke="#9FB3B6" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#2d2d44" />
+              <XAxis dataKey="name" stroke="#8888a0" />
+              <YAxis stroke="#8888a0" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#0F2E34",
-                  border: "1px solid #172A3A",
+                  backgroundColor: "#1a1a2e",
+                  border: "1px solid #2d2d44",
                   borderRadius: "8px",
                 }}
-                labelStyle={{ color: "#F7F9FA" }}
+                labelStyle={{ color: "#f0f0f5" }}
               />
               <Legend />
               <Line
                 type="monotone"
                 dataKey="success"
-                stroke="#3AAFA9"
+                stroke="#7c3aed"
                 strokeWidth={2}
-                dot={{ fill: "#3AAFA9" }}
+                dot={{ fill: "#7c3aed" }}
               />
               <Line
                 type="monotone"
                 dataKey="failed"
-                stroke="#E63946"
+                stroke="#ef4444"
                 strokeWidth={2}
-                dot={{ fill: "#E63946" }}
+                dot={{ fill: "#ef4444" }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         {/* Status Distribution */}
-        <div className="bg-[#0F2E34] rounded-xl border border-[#172A3A] p-6">
-          <h2 className="text-lg font-semibold text-[#FFD166] mb-4">
+        <div className="bg-devops-card rounded-xl border border-devops-border p-6">
+          <h2 className="text-lg font-semibold text-devops-purple-light mb-4">
             Success vs Failure
           </h2>
           <ResponsiveContainer width="100%" height={300}>
@@ -128,11 +128,11 @@ const Metrics = () => {
               </Pie>
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#0F2E34",
-                  border: "1px solid #172A3A",
+                  backgroundColor: "#1a1a2e",
+                  border: "1px solid #2d2d44",
                   borderRadius: "8px",
                 }}
-                labelStyle={{ color: "#F7F9FA" }}
+                labelStyle={{ color: "#f0f0f5" }}
               />
               <Legend />
             </PieChart>
@@ -140,24 +140,24 @@ const Metrics = () => {
         </div>
 
         {/* Average Deployment Time */}
-        <div className="bg-[#0F2E34] rounded-xl border border-[#172A3A] p-6 lg:col-span-2">
-          <h2 className="text-lg font-semibold text-[#FFD166] mb-4">
+        <div className="bg-devops-card rounded-xl border border-devops-border p-6 lg:col-span-2">
+          <h2 className="text-lg font-semibold text-devops-purple-light mb-4">
             Average Deployment Time (minutes)
           </h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={deploymentTimeData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#172A3A" />
-              <XAxis dataKey="name" stroke="#9FB3B6" />
-              <YAxis stroke="#9FB3B6" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#2d2d44" />
+              <XAxis dataKey="name" stroke="#8888a0" />
+              <YAxis stroke="#8888a0" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#0F2E34",
-                  border: "1px solid #172A3A",
+                  backgroundColor: "#1a1a2e",
+                  border: "1px solid #2d2d44",
                   borderRadius: "8px",
                 }}
-                labelStyle={{ color: "#F7F9FA" }}
+                labelStyle={{ color: "#f0f0f5" }}
               />
-              <Bar dataKey="avgTime" fill="#3AAFA9" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="avgTime" fill="#7c3aed" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

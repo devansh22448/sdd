@@ -66,17 +66,17 @@ const Logs = () => {
     <div>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-[#F7F9FA]">Logs</h1>
-          <p className="text-[#9FB3B6] mt-1">Real-time deployment logs</p>
+          <h1 className="text-2xl font-bold text-devops-text">Logs</h1>
+          <p className="text-devops-text-secondary mt-1">Real-time deployment logs</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${connected ? 'bg-[#2ECC71]' : 'bg-[#E63946]'}`}></div>
-            <span className="text-sm text-[#9FB3B6]">{connected ? 'Connected' : 'Disconnected'}</span>
+            <div className={`w-2 h-2 rounded-full ${connected ? 'bg-devops-success' : 'bg-devops-error'}`}></div>
+            <span className="text-sm text-devops-text-secondary">{connected ? 'Connected' : 'Disconnected'}</span>
           </div>
           <button
             onClick={downloadLogs}
-            className="px-4 py-2 bg-[#3AAFA9] hover:bg-[#66D2C7] text-white rounded-xl font-medium transition-colors"
+            className="px-4 py-2 bg-devops-purple hover:bg-devops-purple-light text-white rounded-xl font-medium transition-colors shadow-lg shadow-devops-purple/20"
           >
             Download Logs
           </button>
@@ -84,7 +84,7 @@ const Logs = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-[#0F2E34] rounded-xl border border-[#172A3A] p-4 mb-6">
+      <div className="bg-devops-card rounded-xl border border-devops-border p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <input
@@ -92,7 +92,7 @@ const Logs = () => {
               placeholder="Search logs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 bg-[#172A3A] border border-[#172A3A] rounded-lg text-[#F7F9FA] placeholder-[#9FB3B6] focus:outline-none focus:border-[#3AAFA9]"
+              className="w-full px-4 py-2 bg-devops-bg border border-devops-border rounded-lg text-devops-text placeholder-devops-text-secondary focus:outline-none focus:border-devops-purple"
             />
           </div>
           <div className="flex gap-2">
@@ -102,8 +102,8 @@ const Logs = () => {
                 onClick={() => setFilter(level)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   filter === level
-                    ? 'bg-[#3AAFA9] text-white'
-                    : 'bg-[#172A3A] text-[#9FB3B6] hover:text-[#F7F9FA]'
+                    ? 'bg-devops-purple text-white'
+                    : 'bg-devops-bg text-devops-text-secondary hover:text-devops-text'
                 }`}
               >
                 {level.charAt(0).toUpperCase() + level.slice(1)}

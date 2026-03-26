@@ -32,13 +32,13 @@ const CircuitBreaker = () => {
   const getStateColor = (state) => {
     switch (state) {
       case "CLOSED":
-        return "bg-green-100 text-green-800";
+        return "bg-devops-success/20 text-devops-success border-devops-success/30";
       case "OPEN":
-        return "bg-red-100 text-red-800";
+        return "bg-devops-error/20 text-devops-error border-devops-error/30";
       case "HALF_OPEN":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-devops-warning/20 text-devops-warning border-devops-warning/30";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-devops-text-secondary/20 text-devops-text-secondary border-devops-text-secondary/30";
     }
   };
 
@@ -51,39 +51,46 @@ const CircuitBreaker = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-devops-purple">Loading...</div>
+      </div>
+    );
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Circuit Breaker</h1>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-devops-text">Circuit Breaker</h1>
+        <p className="text-devops-text-secondary mt-1">Monitor and manage service resilience</p>
+      </div>
 
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="bg-devops-card rounded-xl border border-devops-border p-6 mb-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Current State</h2>
+          <h2 className="text-xl font-semibold text-devops-text">Current State</h2>
           <span
-            className={`px-4 py-2 rounded-full text-lg font-bold ${getStateColor(circuitBreakerState.state)}`}
+            className={`px-4 py-2 rounded-full text-lg font-bold border ${getStateColor(circuitBreakerState.state)}`}
           >
             {circuitBreakerState.state}
           </span>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-500">Failure Count</p>
-            <p className="text-2xl font-bold text-red-600">
+          <div className="p-4 bg-devops-bg rounded-lg">
+            <p className="text-sm text-devops-text-secondary">Failure Count</p>
+            <p className="text-2xl font-bold text-devops-error">
               {circuitBreakerState.failureCount}
             </p>
           </div>
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-500">Success Count</p>
-            <p className="text-2xl font-bold text-green-600">
+          <div className="p-4 bg-devops-bg rounded-lg">
+            <p className="text-sm text-devops-text-secondary">Success Count</p>
+            <p className="text-2xl font-bold text-devops-success">
               {circuitBreakerState.successCount}
             </p>
           </div>
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-500">Last Failure</p>
-            <p className="text-lg font-semibold">
+          <div className="p-4 bg-devops-bg rounded-lg">
+            <p className="text-sm text-devops-text-secondary">Last Failure</p>
+            <p className="text-lg font-semibold text-devops-text">
               {circuitBreakerState.lastFailureTime
                 ? new Date(circuitBreakerState.lastFailureTime).toLocaleString()
                 : "N/A"}
@@ -93,7 +100,7 @@ const CircuitBreaker = () => {
 
         <button
           onClick={resetCircuitBreaker}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="px-4 py-2 bg-devops-purple hover:bg-devops-purple-light text-white rounded-lg transition-colors shadow-lg shadow-devops-purple/20"
         >
           Reset Circuit Breaker
         </button>

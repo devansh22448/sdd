@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 const DeploymentTable = ({ deployments }) => {
   const getStatusBadge = (status) => {
     const statusClasses = {
-      success: "bg-[#2ECC71]/20 text-[#2ECC71] border-[#2ECC71]/30",
-      failed: "bg-[#E63946]/20 text-[#E63946] border-[#E63946]/30",
-      pending: "bg-[#FFD166]/20 text-[#FFD166] border-[#FFD166]/30",
-      running: "bg-[#3AAFA9]/20 text-[#3AAFA9] border-[#3AAFA9]/30",
+      success: "bg-devops-success/20 text-devops-success border-devops-success/30",
+      failed: "bg-devops-error/20 text-devops-error border-devops-error/30",
+      pending: "bg-devops-warning/20 text-devops-warning border-devops-warning/30",
+      running: "bg-devops-purple/20 text-devops-purple border-devops-purple/30",
     };
 
     return (
@@ -19,56 +19,56 @@ const DeploymentTable = ({ deployments }) => {
   };
 
   return (
-    <div className="bg-[#0F2E34] rounded-xl border border-[#172A3A] overflow-hidden">
+    <div className="bg-devops-card rounded-xl border border-devops-border overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-[#172A3A]">
+          <thead className="bg-devops-bg">
             <tr>
-              <th className="px-6 py-4 text-left text-xs font-medium text-[#9FB3B6] uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-medium text-devops-text-secondary uppercase tracking-wider">
                 ID
               </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-[#9FB3B6] uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-medium text-devops-text-secondary uppercase tracking-wider">
                 Project
               </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-[#9FB3B6] uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-medium text-devops-text-secondary uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-[#9FB3B6] uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-medium text-devops-text-secondary uppercase tracking-wider">
                 Time
               </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-[#9FB3B6] uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-medium text-devops-text-secondary uppercase tracking-wider">
                 Duration
               </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-[#9FB3B6] uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-medium text-devops-text-secondary uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#172A3A]">
+          <tbody className="divide-y divide-devops-border">
             {deployments.map((deployment) => (
               <tr
                 key={deployment.id}
-                className="hover:bg-[#172A3A]/50 transition-colors"
+                className="hover:bg-devops-bg/50 transition-colors"
               >
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-[#F7F9FA]">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-devops-text">
                   #{deployment.id}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-[#F7F9FA] font-medium">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-devops-text font-medium">
                   {deployment.project}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {getStatusBadge(deployment.status)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-[#9FB3B6]">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-devops-text-secondary">
                   {deployment.time}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-[#9FB3B6]">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-devops-text-secondary">
                   {deployment.duration}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <Link
                     to={`/deployments/${deployment.id}`}
-                    className="text-[#3AAFA9] hover:text-[#66D2C7] text-sm font-medium transition-colors"
+                    className="text-devops-purple hover:text-devops-purple-light text-sm font-medium transition-colors"
                   >
                     View Details
                   </Link>

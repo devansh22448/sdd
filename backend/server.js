@@ -11,6 +11,7 @@ const { errorHandler } = require("./middleware/errorMiddleware");
 const authRoutes = require("./routes/authRoutes");
 const deploymentRoutes = require("./routes/deploymentRoutes");
 const environmentRoutes = require("./routes/environmentRoutes");
+const footerRoutes = require("./routes/footerRoutes");
 
 const app = express();
 
@@ -55,6 +56,7 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/deployments", deploymentRoutes);
 app.use("/api/environments", environmentRoutes);
+app.use("/api/footer", footerRoutes);
 
 // 404 handler
 app.use((req, res) => {

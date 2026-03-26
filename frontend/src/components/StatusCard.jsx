@@ -1,17 +1,17 @@
-const StatusCard = ({ title, value, icon, color = "aqua" }) => {
+const StatusCard = ({ title, value, icon, color = "purple" }) => {
   const colorClasses = {
-    aqua: "text-[#3AAFA9] bg-[#3AAFA9]/10",
-    yellow: "text-[#FFD166] bg-[#FFD166]/10",
-    green: "text-[#2ECC71] bg-[#2ECC71]/10",
-    red: "text-[#E63946] bg-[#E63946]/10",
+    purple: "text-devops-purple bg-devops-purple/10",
+    yellow: "text-devops-warning bg-devops-warning/10",
+    green: "text-devops-success bg-devops-success/10",
+    red: "text-devops-error bg-devops-error/10",
   };
 
   return (
-    <div className="bg-[#0F2E34] rounded-xl p-6 border border-[#172A3A] hover:border-[#3AAFA9] transition-all duration-300">
+    <div className="bg-devops-card rounded-xl p-6 border border-devops-border hover:border-devops-purple/30 transition-all duration-300">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-[#9FB3B6] text-sm font-medium mb-1">{title}</p>
-          <p className="text-3xl font-bold text-[#F7F9FA]">{value}</p>
+          <p className="text-devops-text-secondary text-sm font-medium mb-1">{title}</p>
+          <p className="text-3xl font-bold text-devops-text">{value}</p>
         </div>
         <div
           className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorClasses[color]}`}

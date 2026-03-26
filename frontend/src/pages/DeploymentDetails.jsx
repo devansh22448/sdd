@@ -47,17 +47,17 @@ const DeploymentDetails = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-[#3AAFA9]">Loading...</div>
+        <div className="text-devops-purple">Loading...</div>
       </div>
     );
   }
 
   const getStatusBadge = (status) => {
     const statusClasses = {
-      success: 'bg-[#2ECC71]/20 text-[#2ECC71] border-[#2ECC71]/30',
-      failed: 'bg-[#E63946]/20 text-[#E63946] border-[#E63946]/30',
-      pending: 'bg-[#FFD166]/20 text-[#FFD166] border-[#FFD166]/30',
-      running: 'bg-[#3AAFA9]/20 text-[#3AAFA9] border-[#3AAFA9]/30',
+      success: 'bg-devops-success/20 text-devops-success border-devops-success/30',
+      failed: 'bg-devops-error/20 text-devops-error border-devops-error/30',
+      pending: 'bg-devops-warning/20 text-devops-warning border-devops-warning/30',
+      running: 'bg-devops-purple/20 text-devops-purple border-devops-purple/30',
     };
 
     return (
@@ -70,39 +70,39 @@ const DeploymentDetails = () => {
   return (
     <div>
       <div className="mb-6">
-        <Link to="/deployments" className="text-[#3AAFA9] hover:text-[#66D2C7] text-sm">
+        <Link to="/deployments" className="text-devops-purple hover:text-devops-purple-light text-sm">
           ← Back to Deployments
         </Link>
       </div>
 
       {/* Deployment Info */}
-      <div className="bg-[#0F2E34] rounded-xl border border-[#172A3A] p-6 mb-6">
+      <div className="bg-devops-card rounded-xl border border-devops-border p-6 mb-6">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-[#F7F9FA]">
+            <h1 className="text-2xl font-bold text-devops-text">
               Deployment #{deployment?.id}
             </h1>
-            <p className="text-[#9FB3B6] mt-1">{deployment?.project}</p>
+            <p className="text-devops-text-secondary mt-1">{deployment?.project}</p>
           </div>
           {getStatusBadge(deployment?.status)}
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <p className="text-[#9FB3B6] text-sm">Duration</p>
-            <p className="text-[#F7F9FA] font-medium">{deployment?.duration}</p>
+            <p className="text-devops-text-secondary text-sm">Duration</p>
+            <p className="text-devops-text font-medium">{deployment?.duration}</p>
           </div>
           <div>
-            <p className="text-[#9FB3B6] text-sm">Started</p>
-            <p className="text-[#F7F9FA] font-medium">{deployment?.startedAt}</p>
+            <p className="text-devops-text-secondary text-sm">Started</p>
+            <p className="text-devops-text font-medium">{deployment?.startedAt}</p>
           </div>
           <div>
-            <p className="text-[#9FB3B6] text-sm">Completed</p>
-            <p className="text-[#F7F9FA] font-medium">{deployment?.completedAt}</p>
+            <p className="text-devops-text-secondary text-sm">Completed</p>
+            <p className="text-devops-text font-medium">{deployment?.completedAt}</p>
           </div>
           <div>
-            <p className="text-[#9FB3B6] text-sm">Environment</p>
-            <p className="text-[#F7F9FA] font-medium">Production</p>
+            <p className="text-devops-text-secondary text-sm">Environment</p>
+            <p className="text-devops-text font-medium">Production</p>
           </div>
         </div>
       </div>

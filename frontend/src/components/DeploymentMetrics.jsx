@@ -15,31 +15,31 @@ const successData = [
   { name: 'Failed', value: 15 },
 ];
 
-const COLORS = ['#22c55e', '#ef4444'];
+const COLORS = ['#7c3aed', '#ef4444'];
 
 const DeploymentMetrics = () => {
   return (
-    <div className="bg-[#0F2E34] rounded-2xl border border-[#172A3A] overflow-hidden shadow-2xl h-full">
-      <div className="bg-[#172A3A] px-6 py-4 border-b border-[#172A3A]">
-        <h3 className="text-lg font-semibold text-[#F7F9FA]">Depaloyment Metrics</h3>
+    <div className="bg-devops-card rounded-2xl border border-devops-border overflow-hidden shadow-2xl h-full">
+      <div className="bg-devops-bg px-6 py-4 border-b border-devops-border">
+        <h3 className="text-lg font-semibold text-devops-text">Deployment Metrics</h3>
       </div>
       <div className="p-6">
         <div className="grid grid-cols-2 gap-6">
           {/* Line Chart */}
           <div>
-            <h4 className="text-sm font-medium text-[#9FB3B6] mb-4">Deployment Frequency</h4>
+            <h4 className="text-sm font-medium text-devops-text-secondary mb-4">Deployment Frequency</h4>
             <ResponsiveContainer width="100%" height={120}>
               <LineChart data={frequencyData}>
                 <Line 
                   type="monotone" 
                   dataKey="value" 
-                  stroke="#22c55e" 
+                  stroke="#7c3aed" 
                   strokeWidth={2} 
                   dot={false}
                 />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0F2E34', border: '1px solid #172A3A', borderRadius: '8px' }}
-                  labelStyle={{ color: '#F7F9FA' }}
+                  contentStyle={{ backgroundColor: '#1a1a2e', border: '1px solid #2d2d44', borderRadius: '8px' }}
+                  labelStyle={{ color: '#f0f0f5' }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -47,7 +47,7 @@ const DeploymentMetrics = () => {
           
           {/* Donut Chart */}
           <div>
-            <h4 className="text-sm font-medium text-[#9FB3B6] mb-4">Success Rate</h4>
+            <h4 className="text-sm font-medium text-devops-text-secondary mb-4">Success Rate</h4>
             <ResponsiveContainer width="100%" height={120}>
               <PieChart>
                 <Pie
@@ -63,8 +63,8 @@ const DeploymentMetrics = () => {
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0F2E34', border: '1px solid #172A3A', borderRadius: '8px' }}
-                  labelStyle={{ color: '#F7F9FA' }}
+                  contentStyle={{ backgroundColor: '#1a1a2e', border: '1px solid #2d2d44', borderRadius: '8px' }}
+                  labelStyle={{ color: '#f0f0f5' }}
                 />
               </PieChart>
             </ResponsiveContainer>

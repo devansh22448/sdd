@@ -39,11 +39,36 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // eslint-disable-next-line no-unused-vars
+  const register = async (username, email, PASS) => {
+    try {
+      // Simulate API call for demo
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Mock successful registration
+      const mockUser = { id: Date.now(), name: username, email };
+      const mockToken = "mock-register-token-" + Date.now();
+
+      // Auto-login after register
+      localStorage.setItem("token", mockToken);
+      localStorage.setItem("user", JSON.stringify(mockUser));
+      setUser(mockUser);
+
+      return { success: true, message: "Registration successful!" };
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || "Registration failed",
+      };
+    }
+  };
+
   const value = {
     user,
     loading,
     login,
     logout,
+    register,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

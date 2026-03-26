@@ -42,78 +42,87 @@ const Failures = () => {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-devops-purple">Loading...</div>
+      </div>
+    );
   }
 
   const getSeverityColor = (severity) => {
     switch (severity) {
       case "critical":
-        return "bg-red-100 text-red-800";
+        return "bg-devops-error/20 text-devops-error border-devops-error/30";
       case "high":
-        return "bg-orange-100 text-orange-800";
+        return "bg-devops-warning/20 text-devops-warning border-devops-warning/30";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-devops-highlight/20 text-devops-highlight border-devops-highlight/30";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-devops-text-secondary/20 text-devops-text-secondary border-devops-text-secondary/30";
     }
   };
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Failures</h1>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-devops-text">Failures</h1>
+        <p className="text-devops-text-secondary mt-1">Track and analyze deployment failures</p>
+      </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-devops-card rounded-xl border border-devops-border overflow-hidden">
         {failures.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-devops-text-secondary">
             No failures recorded
           </div>
         ) : (
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Type
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Message
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Severity
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Timestamp
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {failures.map((failure) => (
-                <tr key={failure.id}>
-                  <td className="px-6 py-4 whitespace-nowrap font-medium">
-                    {failure.type}
-                  </td>
-                  <td className="px-6 py-4">{failure.message}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${getSeverityColor(failure.severity)}`}
-                    >
-                      {failure.severity}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                    {new Date(failure.timestamp).toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button className="text-blue-600 hover:text-blue-800">
-                      View Details
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-devops-border">
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-devops-text-secondary uppercase tracking-wider">
+                    Type
+                  </th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-devops-text-secondary uppercase tracking-wider">
+                    Message
+                  </th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-devops-text-secondary uppercase tracking-wider">
+                    Severity
+                  </th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-devops-text-secondary uppercase tracking-wider">
+                    Timestamp
+                  </th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-devops-text-secondary uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-devops-border/50">
+                {failures.map((failure) => (
+                  <tr key={failure.id} className="hover:bg-devops-bg/30 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap font-medium text-devops-text">
+                      {failure.type}
+                    </td>
+                    <td className="px-6 py-4 text-devops-text-secondary">{failure.message}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium border ${getSeverityColor(failure.severity)}`}
+                      >
+                        {failure.severity}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-devops-text-secondary font-mono text-sm">
+                      {new Date(failure.timestamp).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <button className="text-devops-purple hover:text-devops-purple-light text-sm font-medium transition-colors">
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

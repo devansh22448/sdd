@@ -1,48 +1,62 @@
-import LiveDeploymentLog from "../components/LiveDeploymentLog";
-import DeploymentMetrics from "../components/DeploymentMetrics";
-import DeploymentHistoryTable from "../components/DeploymentHistoryTable";
+import { useState } from 'react';
+import HeroSection from '../components/HeroSection';
+import DeploymentStatusSection from '../components/DeploymentStatusSection';
+import NewDeploymentForm from '../components/NewDeploymentForm';
+import LogsSection from '../components/LogsSection';
+import MetricsSection from '../components/MetricsSection';
+import HistorySection from '../components/HistorySection';
 
 const Dashboard = () => {
+  const [isDeploymentFormOpen, setIsDeploymentFormOpen] = useState(false);
+
+  const handleNewDeployment = () => {
+    setIsDeploymentFormOpen(true);
+  };
+
+  const handleDeploymentSubmit = async (data) => {
+    // In production, this would call your API
+    console.log('Deployment data:', data);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    alert('Deployment started successfully!');
+  };
+
   return (
-    <div className="p-6 space-y-6">
-      {/* Top Row - 3 Status Cards */}
-      <div className="grid grid-cols-3 gap-6">
-        {/* Card 1 - Running */}
-        <div className="bg-[#0F2E34] rounded-2xl p-6 border border-[#172A3A] shadow-2xl">
-          <h3 className="text-sm font-medium text-[#9FB3B6] mb-2">
-            Depaloyment Status:
-          </h3>
-          <p className="text-5xl font-bold text-[#FFD166]">12</p>
-          <p className="text-sm text-[#9FB3B6] mt-2">Running</p>
-        </div>
+    <div className="min-h-screen bg-devops-bg">
+      {/* Hero Section */}
+      <HeroSection />
 
-        {/* Card 2 - Success */}
-        <div className="bg-[#0F2E34] rounded-2xl p-6 border border-[#172A3A] shadow-2xl">
-          <h3 className="text-sm font-medium text-[#9FB3B6] mb-2">
-            Depaloyment Status:
-          </h3>
-          <p className="text-5xl font-bold text-[#22c55e]">85</p>
-          <p className="text-sm text-[#9FB3B6] mt-2">Success</p>
-        </div>
+      {/* Deployment Status Section */}
+      <DeploymentStatusSection onNewDeployment={handleNewDeployment} />
 
-        {/* Card 3 - Failed */}
-        <div className="bg-[#0F2E34] rounded-2xl p-6 border border-[#172A3A] shadow-2xl">
-          <h3 className="text-sm font-medium text-[#9FB3B6] mb-2">
-            Depaloyment Status:
-          </h3>
-          <p className="text-5xl font-bold text-[#ef4444]">3</p>
-          <p className="text-sm text-[#9FB3B6] mt-2">Failed</p>
+      {/* Metrics Section */}
+      <MetricsSection />
+
+      {/* Main Content - Logs & History */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 py-8">
+          {/* Left - Logs */}
+          <LogsSection />
+          
+          {/* Right - Can add more content or keep history separate */}
+          <div>
+            {/* Could add additional widgets here */}
+          </div>
         </div>
       </div>
 
-      {/* Second Row - Log + Metrics */}
-      <div className="grid grid-cols-2 gap-6">
-        <LiveDeploymentLog />
-        <DeploymentMetrics />
-      </div>
+      {/* History Section - Full Width */}
+      <HistorySection />
 
-      {/* Bottom Row - History Table */}
-      <DeploymentHistoryTable />
+      {/* Spacer for footer */}
+      <div className="h-8" />
+
+      {/* New Deployment Modal */}
+      <NewDeploymentForm 
+        isOpen={isDeploymentFormOpen}
+        onClose={() => setIsDeploymentFormOpen(false)}
+        onSubmit={handleDeploymentSubmit}
+      />
     </div>
   );
 };

@@ -52,19 +52,23 @@ const Notifications = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-devops-purple">Loading...</div>
+      </div>
+    );
   }
 
   const getTypeColor = (type) => {
     switch (type) {
       case "success":
-        return "bg-green-100 text-green-800";
+        return "bg-devops-success/20 text-devops-success border-devops-success/30";
       case "warning":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-devops-warning/20 text-devops-warning border-devops-warning/30";
       case "error":
-        return "bg-red-100 text-red-800";
+        return "bg-devops-error/20 text-devops-error border-devops-error/30";
       default:
-        return "bg-blue-100 text-blue-800";
+        return "bg-devops-purple/20 text-devops-purple border-devops-purple/30";
     }
   };
 
@@ -73,44 +77,47 @@ const Notifications = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Notifications</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-devops-text">Notifications</h1>
+          <p className="text-devops-text-secondary mt-1">Stay updated with your deployments</p>
+        </div>
         {unreadCount > 0 && (
           <button
             onClick={markAllAsRead}
-            className="text-blue-600 hover:text-blue-800"
+            className="px-4 py-2 text-devops-purple hover:text-devops-purple-light text-sm font-medium transition-colors"
           >
             Mark all as read
           </button>
         )}
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-devops-card rounded-xl border border-devops-border overflow-hidden">
         {notifications.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">No notifications</div>
+          <div className="p-8 text-center text-devops-text-secondary">No notifications</div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-devops-border/50">
             {notifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`p-4 flex items-start gap-4 ${!notification.read ? "bg-blue-50" : ""}`}
+                className={`p-4 flex items-start gap-4 hover:bg-devops-bg/30 transition-colors ${!notification.read ? "bg-devops-purple/5" : ""}`}
               >
                 <div
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(notification.type)}`}
+                  className={`px-3 py-1 rounded-full text-xs font-medium border ${getTypeColor(notification.type)}`}
                 >
                   {notification.type}
                 </div>
                 <div className="flex-1">
-                  <p className={!notification.read ? "font-semibold" : ""}>
+                  <p className={!notification.read ? "text-devops-text font-semibold" : "text-devops-text-secondary"}>
                     {notification.message}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-devops-text-secondary mt-1 font-mono">
                     {new Date(notification.timestamp).toLocaleString()}
                   </p>
                 </div>
                 {!notification.read && (
                   <button
                     onClick={() => markAsRead(notification.id)}
-                    className="text-sm text-blue-600 hover:text-blue-800"
+                    className="text-sm text-devops-purple hover:text-devops-purple-light font-medium transition-colors"
                   >
                     Mark as read
                   </button>

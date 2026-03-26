@@ -40,28 +40,28 @@ const LiveDeploymentLog = () => {
 
   const getLevelColor = (level) => {
     const colors = {
-      INFO: 'text-cyan-400',
-      SUCCESS: 'text-green-400',
-      ERROR: 'text-red-400',
-      WARNING: 'text-yellow-400',
+      INFO: 'text-devops-highlight',
+      SUCCESS: 'text-devops-success',
+      ERROR: 'text-devops-error',
+      WARNING: 'text-devops-warning',
     };
-    return colors[level] || 'text-gray-400';
+    return colors[level] || 'text-devops-text-secondary';
   };
 
   return (
-    <div className="bg-[#0F2E34] rounded-2xl border border-[#172A3A] overflow-hidden shadow-2xl">
-      <div className="bg-[#172A3A] px-6 py-4 border-b border-[#172A3A]">
-        <h3 className="text-lg font-semibold text-[#F7F9FA]">Live Deployment Log</h3>
+    <div className="bg-devops-card rounded-2xl border border-devops-border overflow-hidden shadow-2xl">
+      <div className="bg-devops-bg px-6 py-4 border-b border-devops-border">
+        <h3 className="text-lg font-semibold text-devops-text">Live Deployment Log</h3>
       </div>
       <div 
         ref={consoleRef}
-        className="p-4 h-72 overflow-y-auto bg-[#0A2328] font-mono text-sm"
+        className="p-4 h-72 overflow-y-auto bg-devops-bg font-mono text-sm"
       >
         {logs.map((log, index) => (
           <div key={index} className="mb-1 flex gap-3">
-            <span className="text-gray-500 shrink-0">[{log.time}]</span>
+            <span className="text-devops-text-secondary shrink-0">[{log.time}]</span>
             <span className={`shrink-0 w-16 ${getLevelColor(log.level)}`}>{log.level}</span>
-            <span className="text-gray-300">{log.message}</span>
+            <span className="text-devops-text">{log.message}</span>
           </div>
         ))}
       </div>
