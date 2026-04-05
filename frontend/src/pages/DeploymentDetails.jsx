@@ -5,19 +5,28 @@ import { io } from 'socket.io-client';
 import LogConsole from '../components/LogConsole';
 
 const DeploymentDetails = () => {
-  const { id } = useParams(); // URL se _id milega
+  const { id } = useParams(); 
   const [deployment, setDeployment] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Fetch current deployment details from backend
+    // 1. Fetch current deployment details and OLD LOGS from backend
     const fetchDeploymentDetails = async () => {
       try {
-        // Assume you have an endpoint like GET /api/deployments/:id
-        // Agar nahi hai, toh humein backend mein add karna padega (main bataunga kaise)
         const response = await axios.get(`http://localhost:5000/api/deployments/${id}`);
         setDeployment(response.data);
+        
+        // 👇 YEH NAYA BLOCK HAI: Database wale purane logs ko screen par dikhane ke liye
+        if (response.data.logs && response.data.logs.length > 0) {
+          const formattedLogs = response.data.logs.map(log => ({
+            timestamp: new Date(log.timestamp).toLocaleTimeString(),
+            level: log.level || (log.message.includes('[ERROR]') ? 'error' : 'info'),
+            message: log.message
+          }));
+          setLogs(formattedLogs);
+        }
+
       } catch (error) {
         console.error('Error fetching deployment details:', error);
       } finally {
@@ -27,32 +36,28 @@ const DeploymentDetails = () => {
 
     fetchDeploymentDetails();
 
-    // 2. Setup Socket.io for LIVE logs
+    // 2. Setup Socket.io for LIVE logs (Naye logs ke liye)
     const socket = io('http://localhost:5000');
 
-    // Suno aur naye logs array mein add karo
     socket.on('log', (data) => {
-      // Sirf isi deployment id ke logs sunne hain
       if (data.deploymentId === id) {
         setLogs((prevLogs) => [
           ...prevLogs,
           { 
             timestamp: new Date().toLocaleTimeString(), 
-            level: data.message.includes('[ERROR]') ? 'error' : 'info', 
+            level: data.level || (data.message.includes('[ERROR]') ? 'error' : 'info'), 
             message: data.message 
           }
         ]);
       }
     });
 
-    // Suno agar deployment khatam ho jaye aur status change ho
     socket.on('statusUpdate', (data) => {
       if (data.deploymentId === id) {
-        setDeployment((prev) => ({ ...prev, status: data.status, duration: data.duration || '5s' }));
+        setDeployment((prev) => ({ ...prev, status: data.status, duration: data.duration || prev?.duration || '5s' }));
       }
     });
 
-    // Cleanup when component unmounts
     return () => socket.disconnect();
   }, [id]);
 
@@ -99,7 +104,6 @@ const DeploymentDetails = () => {
         </Link>
       </div>
 
-      {/* Deployment Info */}
       <div className="bg-[#0F2E34] rounded-xl border border-[#172A3A] p-6 mb-6">
         <div className="flex justify-between items-start mb-6">
           <div>
