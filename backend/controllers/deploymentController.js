@@ -1,4 +1,5 @@
 const Deployment = require("../models/Deployment");
+const circuitBreaker = require("../services/circuitBreaker");
 
 // Get all deployments
 exports.getAllDeployments = async (req, res) => {
@@ -9,13 +10,17 @@ exports.getAllDeployments = async (req, res) => {
     if (status) query.status = status;
     if (environment) query.environment = environment;
 
-    const deployments = await Deployment.find(query)
-      .populate("deployedBy", "username email firstName lastName")
-      .sort({ deployedAt: -1 })
-      .skip(parseInt(skip))
-      .limit(parseInt(limit));
+    const deployments = await circuitBreaker.fire(() =>
+      Deployment.find(query)
+        .populate("deployedBy", "username email firstName lastName")
+        .sort({ deployedAt: -1 })
+        .skip(parseInt(skip))
+        .limit(parseInt(limit)),
+    );
 
-    const total = await Deployment.countDocuments(query);
+    const total = await circuitBreaker.fire(() =>
+      Deployment.countDocuments(query),
+    );
 
     res.json({
       deployments,
@@ -25,16 +30,18 @@ exports.getAllDeployments = async (req, res) => {
     });
   } catch (error) {
     console.error("Get deployments error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error or DB unavailable" });
   }
 };
 
 // Get deployment by ID
 exports.getDeploymentById = async (req, res) => {
   try {
-    const deployment = await Deployment.findById(req.params.id)
-      .populate("deployedBy", "username email firstName lastName")
-      .populate("rollbackHistory.rolledBackBy", "username email");
+    const deployment = await circuitBreaker.fire(() =>
+      Deployment.findById(req.params.id)
+        .populate("deployedBy", "username email firstName lastName")
+        .populate("rollbackHistory.rolledBackBy", "username email"),
+    );
 
     if (!deployment) {
       return res.status(404).json({ message: "Deployment not found" });
@@ -43,7 +50,7 @@ exports.getDeploymentById = async (req, res) => {
     res.json(deployment);
   } catch (error) {
     console.error("Get deployment error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error or DB unavailable" });
   }
 };
 
@@ -72,9 +79,8 @@ exports.createDeployment = async (req, res) => {
       status: "pending",
     });
 
-    await deployment.save();
+    await circuitBreaker.fire(() => deployment.save());
 
-    // Populate deployedBy for response
     await deployment.populate(
       "deployedBy",
       "username email firstName lastName",
@@ -86,7 +92,7 @@ exports.createDeployment = async (req, res) => {
     });
   } catch (error) {
     console.error("Create deployment error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error or DB unavailable" });
   }
 };
 
@@ -95,7 +101,10 @@ exports.updateDeploymentStatus = async (req, res) => {
   try {
     const { status, logs, metrics } = req.body;
 
-    const deployment = await Deployment.findById(req.params.id);
+    const deployment = await circuitBreaker.fire(() =>
+      Deployment.findById(req.params.id),
+    );
+
     if (!deployment) {
       return res.status(404).json({ message: "Deployment not found" });
     }
@@ -117,7 +126,7 @@ exports.updateDeploymentStatus = async (req, res) => {
       );
     }
 
-    await deployment.save();
+    await circuitBreaker.fire(() => deployment.save());
 
     await deployment.populate(
       "deployedBy",
@@ -130,7 +139,7 @@ exports.updateDeploymentStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("Update deployment status error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error or DB unavailable" });
   }
 };
 
@@ -139,18 +148,20 @@ exports.rollbackDeployment = async (req, res) => {
   try {
     const { reason } = req.body;
 
-    const deployment = await Deployment.findById(req.params.id);
+    const deployment = await circuitBreaker.fire(() =>
+      Deployment.findById(req.params.id),
+    );
+
     if (!deployment) {
       return res.status(404).json({ message: "Deployment not found" });
     }
 
     if (deployment.status !== "success") {
-      return res
-        .status(400)
-        .json({ message: "Can only rollback successful deployments" });
+      return res.status(400).json({
+        message: "Can only rollback successful deployments",
+      });
     }
 
-    // Add to rollback history
     deployment.rollbackHistory.push({
       version: deployment.version,
       rolledBackAt: new Date(),
@@ -159,7 +170,8 @@ exports.rollbackDeployment = async (req, res) => {
     });
 
     deployment.status = "rolled_back";
-    await deployment.save();
+
+    await circuitBreaker.fire(() => deployment.save());
 
     res.json({
       message: "Deployment rolled back successfully",
@@ -167,41 +179,46 @@ exports.rollbackDeployment = async (req, res) => {
     });
   } catch (error) {
     console.error("Rollback deployment error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error or DB unavailable" });
   }
 };
 
 // Get deployment statistics
 exports.getDeploymentStats = async (req, res) => {
   try {
-    const stats = await Deployment.aggregate([
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 },
+    const stats = await circuitBreaker.fire(() =>
+      Deployment.aggregate([
+        {
+          $group: {
+            _id: "$status",
+            count: { $sum: 1 },
+          },
         },
-      },
-    ]);
+      ]),
+    );
 
-    const environmentStats = await Deployment.aggregate([
-      {
-        $group: {
-          _id: "$environment",
-          count: { $sum: 1 },
+    const environmentStats = await circuitBreaker.fire(() =>
+      Deployment.aggregate([
+        {
+          $group: {
+            _id: "$environment",
+            count: { $sum: 1 },
+          },
         },
-      },
-    ]);
+      ]),
+    );
 
-    // Calculate average duration for successful deployments
-    const avgDuration = await Deployment.aggregate([
-      { $match: { status: "success" } },
-      {
-        $group: {
-          _id: null,
-          avgDuration: { $avg: "$duration" },
+    const avgDuration = await circuitBreaker.fire(() =>
+      Deployment.aggregate([
+        { $match: { status: "success" } },
+        {
+          $group: {
+            _id: null,
+            avgDuration: { $avg: "$duration" },
+          },
         },
-      },
-    ]);
+      ]),
+    );
 
     res.json({
       byStatus: stats,
@@ -210,22 +227,26 @@ exports.getDeploymentStats = async (req, res) => {
     });
   } catch (error) {
     console.error("Get deployment stats error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error or DB unavailable" });
   }
 };
 
 // Delete deployment
 exports.deleteDeployment = async (req, res) => {
   try {
-    const deployment = await Deployment.findById(req.params.id);
+    const deployment = await circuitBreaker.fire(() =>
+      Deployment.findById(req.params.id),
+    );
+
     if (!deployment) {
       return res.status(404).json({ message: "Deployment not found" });
     }
 
-    await deployment.deleteOne();
+    await circuitBreaker.fire(() => deployment.deleteOne());
+
     res.json({ message: "Deployment deleted successfully" });
   } catch (error) {
     console.error("Delete deployment error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error or DB unavailable" });
   }
 };
