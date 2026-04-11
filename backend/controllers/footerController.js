@@ -1,14 +1,14 @@
-import Footer from "../models/Footer.js";
+const Footer = require("../models/Footer");
+const breaker = require("../services/circuitBreaker");
 
-// @desc    Get active footer data
-// @route   GET /api/footer
-// @access  Public
-export const getActiveFooter = async (req, res) => {
+// @desc Get active footer
+exports.getActiveFooter = async (req, res) => {
   try {
-    const footer = await Footer.getActiveFooter();
+    const footer = await breaker.fire(async () => {
+      return await Footer.getActiveFooter();
+    });
 
     if (!footer) {
-      // Return default fallback data if no footer exists
       return res.status(200).json({
         success: true,
         data: {
@@ -42,99 +42,16 @@ export const getActiveFooter = async (req, res) => {
     console.error("Error fetching footer:", error);
     res.status(500).json({
       success: false,
-      message: "Server error fetching footer data",
+      message: error.message,
     });
   }
 };
 
-// @desc    Create new footer
-// @route   POST /api/footer
-// @access  Private (Admin)
-export const createFooter = async (req, res) => {
+// @desc Create footer
+exports.createFooter = async (req, res) => {
   try {
-    const {
-      contactEmail,
-      contactPhone,
-      address,
-      description,
-      socialLinks,
-      quickLinks,
-      isActive,
-    } = req.body;
-
-    // Check if active footer already exists
-    const existingActive = await Footer.findOne({ isActive: true });
-
-    // If creating new active footer, deactivate existing one
-    if (isActive && existingActive) {
-      await Footer.findByIdAndUpdate(existingActive._id, { isActive: false });
-    }
-
-    const footer = await Footer.create({
-      contactEmail,
-      contactPhone,
-      address,
-      description,
-      socialLinks,
-      quickLinks: quickLinks || [
-        { label: "Dashboard", path: "/dashboard" },
-        { label: "Logs", path: "/logs" },
-        { label: "Deployments", path: "/deployments" },
-        { label: "Settings", path: "/settings" },
-      ],
-      isActive: isActive !== undefined ? isActive : true,
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "Footer created successfully",
-      data: footer,
-    });
-  } catch (error) {
-    console.error("Error creating footer:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error creating footer",
-    });
-  }
-};
-
-// @desc    Update footer
-// @route   PUT /api/footer/:id
-// @access  Private (Admin)
-export const updateFooter = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
-      contactEmail,
-      contactPhone,
-      address,
-      description,
-      socialLinks,
-      quickLinks,
-      isActive,
-    } = req.body;
-
-    let footer = await Footer.findById(id);
-
-    if (!footer) {
-      return res.status(404).json({
-        success: false,
-        message: "Footer not found",
-      });
-    }
-
-    // If setting to active, deactivate other active footers
-    if (isActive && !footer.isActive) {
-      await Footer.updateMany(
-        { _id: { $ne: id }, isActive: true },
-        { isActive: false },
-      );
-    }
-
-    footer = await Footer.findByIdAndUpdate(
-      id,
-      {
+    const result = await breaker.fire(async () => {
+      const {
         contactEmail,
         contactPhone,
         address,
@@ -142,41 +59,115 @@ export const updateFooter = async (req, res) => {
         socialLinks,
         quickLinks,
         isActive,
-      },
-      { new: true, runValidators: true },
-    );
+      } = req.body;
+
+      const existingActive = await Footer.findOne({ isActive: true });
+
+      if (isActive && existingActive) {
+        await Footer.findByIdAndUpdate(existingActive._id, {
+          isActive: false,
+        });
+      }
+
+      const footer = await Footer.create({
+        contactEmail,
+        contactPhone,
+        address,
+        description,
+        socialLinks,
+        quickLinks: quickLinks || [
+          { label: "Dashboard", path: "/dashboard" },
+          { label: "Logs", path: "/logs" },
+          { label: "Deployments", path: "/deployments" },
+          { label: "Settings", path: "/settings" },
+        ],
+        isActive: isActive !== undefined ? isActive : true,
+      });
+
+      return footer;
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Footer created successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error creating footer:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc Update footer
+exports.updateFooter = async (req, res) => {
+  try {
+    const result = await breaker.fire(async () => {
+      const { id } = req.params;
+      const {
+        contactEmail,
+        contactPhone,
+        address,
+        description,
+        socialLinks,
+        quickLinks,
+        isActive,
+      } = req.body;
+
+      let footer = await Footer.findById(id);
+      if (!footer) throw new Error("Footer not found");
+
+      if (isActive && !footer.isActive) {
+        await Footer.updateMany(
+          { _id: { $ne: id }, isActive: true },
+          { isActive: false },
+        );
+      }
+
+      footer = await Footer.findByIdAndUpdate(
+        id,
+        {
+          contactEmail,
+          contactPhone,
+          address,
+          description,
+          socialLinks,
+          quickLinks,
+          isActive,
+        },
+        { new: true, runValidators: true },
+      );
+
+      return footer;
+    });
 
     res.status(200).json({
       success: true,
       message: "Footer updated successfully",
-      data: footer,
+      data: result,
     });
   } catch (error) {
     console.error("Error updating footer:", error);
     res.status(500).json({
       success: false,
-      message: "Server error updating footer",
+      message: error.message,
     });
   }
 };
 
-// @desc    Delete footer
-// @route   DELETE /api/footer/:id
-// @access  Private (Admin)
-export const deleteFooter = async (req, res) => {
+// @desc Delete footer
+exports.deleteFooter = async (req, res) => {
   try {
-    const { id } = req.params;
+    await breaker.fire(async () => {
+      const { id } = req.params;
 
-    const footer = await Footer.findById(id);
+      const footer = await Footer.findById(id);
+      if (!footer) throw new Error("Footer not found");
 
-    if (!footer) {
-      return res.status(404).json({
-        success: false,
-        message: "Footer not found",
-      });
-    }
-
-    await Footer.findByIdAndDelete(id);
+      await Footer.findByIdAndDelete(id);
+    });
 
     res.status(200).json({
       success: true,
@@ -186,17 +177,17 @@ export const deleteFooter = async (req, res) => {
     console.error("Error deleting footer:", error);
     res.status(500).json({
       success: false,
-      message: "Server error deleting footer",
+      message: error.message,
     });
   }
 };
 
-// @desc    Get all footers (for admin)
-// @route   GET /api/footer/all
-// @access  Private (Admin)
-export const getAllFooters = async (req, res) => {
+// @desc Get all footers
+exports.getAllFooters = async (req, res) => {
   try {
-    const footers = await Footer.find().sort({ createdAt: -1 });
+    const footers = await breaker.fire(async () => {
+      return await Footer.find().sort({ createdAt: -1 });
+    });
 
     res.status(200).json({
       success: true,
@@ -206,19 +197,17 @@ export const getAllFooters = async (req, res) => {
     console.error("Error fetching all footers:", error);
     res.status(500).json({
       success: false,
-      message: "Server error fetching footers",
+      message: error.message,
     });
   }
 };
 
-// @desc    Get footer by ID (for admin editing)
-// @route   GET /api/footer/:id
-// @access  Private (Admin)
-export const getFooterById = async (req, res) => {
+// @desc Get footer by ID
+exports.getFooterById = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const footer = await Footer.findById(id);
+    const footer = await breaker.fire(async () => {
+      return await Footer.findById(req.params.id);
+    });
 
     if (!footer) {
       return res.status(404).json({
@@ -235,7 +224,7 @@ export const getFooterById = async (req, res) => {
     console.error("Error fetching footer by ID:", error);
     res.status(500).json({
       success: false,
-      message: "Server error fetching footer",
+      message: error.message,
     });
   }
 };
