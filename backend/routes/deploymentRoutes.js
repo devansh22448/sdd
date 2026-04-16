@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getDeployments, createDeployment, getDashboardMetrics } = require('../controllers/deploymentController');
+const { getDeployments, createDeployment, triggerDeployment, getDashboardMetrics } = require('../controllers/deploymentController');
 
 // 👇 YEH IMPORT MISSING THA
 const Deployment = require('../models/Deployment'); 
@@ -9,6 +9,7 @@ const Deployment = require('../models/Deployment');
 router.get('/metrics', getDashboardMetrics);
 
 // 2. Base routes beech mein
+router.post('/trigger', triggerDeployment);
 router.route('/')
     .get(getDeployments)
     .post(createDeployment);

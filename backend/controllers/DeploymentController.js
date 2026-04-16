@@ -20,7 +20,8 @@ const createDeployment = async (req, res) => {
             project: project || 'Unknown Project',
             environment: environment || 'Production',
             version: version || 'latest',
-            status: 'Pending'
+            status: 'Pending',
+            startedAt: new Date()
         });
 
         // JAADU YAHAN HAI: Background mein terminal commands chalana shuru kardo, HTTP response return karne ka wait mat karo
@@ -32,47 +33,126 @@ const createDeployment = async (req, res) => {
     }
 };
 
-// 3. Get Dashboard Metrics (Feeds your top 3 cards and pie chart)
+const triggerDeployment = async (req, res) => {
+    try {
+        const { repoUrl, branch, environment, deployMessage } = req.body;
+        
+        // Circuit breaker: limit concurrent deployments to 3
+        const runningCount = await Deployment.countDocuments({ status: 'Running' });
+        if (runningCount >= 3) {
+            return res.status(429).json({ message: 'Circuit breaker: Maximum of 3 deployments are currently running. Please wait.' });
+        }
+        
+        const projectName = repoUrl ? repoUrl.split('/').pop().replace('.git', '') : 'Unknown Project';
+
+        const deployment = await Deployment.create({
+            project: projectName,
+            repoUrl,
+            branch: branch || 'main',
+            environment: environment || 'development',
+            deployMessage,
+            status: 'Pending',
+            startedAt: new Date()
+        });
+
+        // Assuming dummy owner and repoName for runDeploymentProcess based on Github repo string
+        // Assuming cloneUrl is repoUrl
+        const parts = repoUrl ? repoUrl.replace('https://github.com/', '').split('/') : [];
+        const owner = parts[0] || 'owner';
+        const repoName = parts[1] ? parts[1].replace('.git', '') : 'repo';
+
+        runDeploymentProcess(deployment._id, owner, repoName, '123456', repoUrl);
+
+        res.status(201).json(deployment);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+
+// 3. Get Dashboard Metrics
 const getDashboardMetrics = async (req, res) => {
     try {
-        const total = await Deployment.countDocuments();
-        const success = await Deployment.countDocuments({ status: 'Success' });
-        const failed = await Deployment.countDocuments({ status: 'Failed' });
-        const pending = await Deployment.countDocuments({ status: { $in: ['Pending', 'Running'] } });
+        const totalDeployments = await Deployment.countDocuments();
+        const successCount = await Deployment.countDocuments({ status: 'Success' });
+        const failureCount = await Deployment.countDocuments({ status: 'Failed' });
+        const activeDeployments = await Deployment.countDocuments({ status: { $in: ['Pending', 'Running'] } });
 
-        // 👇 NAYA LOGIC: Pichle 7 din ka data nikalne ke liye
-        const chartData = [];
-        for (let i = 6; i >= 0; i--) {
+        const successRate = totalDeployments === 0 ? 0 : Math.round((successCount / totalDeployments) * 100);
+
+        // Aggegrations setup
+        // Get all completed to find avg duration (stored as "23s" string currently)
+        const completed = await Deployment.find({ status: { $in: ['Success', 'Failed'] } });
+        let totalSecs = 0;
+        let validDurations = 0;
+        
+        let envStats = {}; // { dev: { count: 0, totalDuration: 0, validItems: 0 }, ... }
+        
+        completed.forEach(d => {
+            const env = d.environment || 'production';
+            if (!envStats[env]) envStats[env] = { count: 0, totalDuration: 0, validItems: 0 };
+            envStats[env].count += 1;
+
+            if (d.duration && d.duration.endsWith('s')) {
+                const secs = parseInt(d.duration.replace('s', ''));
+                if (!isNaN(secs)) {
+                    totalSecs += secs;
+                    validDurations += 1;
+                    envStats[env].totalDuration += secs;
+                    envStats[env].validItems += 1;
+                }
+            }
+        });
+
+        const avgDurationMs = validDurations > 0 ? Math.round((totalSecs / validDurations) * 1000) : 0;
+        
+        const deploymentsByEnvironment = Object.keys(envStats).map(env => ({
+            name: env,
+            count: envStats[env].count
+        }));
+        
+        const avgDurationByEnvironment = Object.keys(envStats).map(env => ({
+            name: env,
+            duration: envStats[env].validItems > 0 ? Math.round(envStats[env].totalDuration / envStats[env].validItems) : 0
+        }));
+
+        const deploymentsByDay = [];
+        for (let i = 29; i >= 0; i--) {
             const d = new Date();
             d.setDate(d.getDate() - i);
-            const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); // Jaise: "Apr 4"
-
-            // Us specific din ki starting aur ending time
+            const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             const startOfDay = new Date(d.setHours(0, 0, 0, 0));
             const endOfDay = new Date(d.setHours(23, 59, 59, 999));
 
-            // Database se us din ke pass aur fail records count karo
-            const daySuccess = await Deployment.countDocuments({ 
-                status: 'Success', 
-                createdAt: { $gte: startOfDay, $lte: endOfDay } 
+            const dayCount = await Deployment.countDocuments({
+                createdAt: { $gte: startOfDay, $lte: endOfDay }
             });
-            const dayFailed = await Deployment.countDocuments({ 
-                status: 'Failed', 
-                createdAt: { $gte: startOfDay, $lte: endOfDay } 
-            });
-
-            chartData.push({
+            deploymentsByDay.push({
                 name: dateStr,
-                success: daySuccess,
-                failed: dayFailed
+                deployments: dayCount
             });
         }
 
-        res.json({ total, success, failed, pending, chartData });
+        res.json({
+            totalDeployments,
+            successCount,
+            failureCount,
+            successRate,
+            avgDurationMs,
+            activeDeployments,
+            deploymentsByDay,
+            deploymentsByEnvironment,
+            avgDurationByEnvironment,
+            statusBreakdown: [
+               { name: 'Success', value: successCount },
+               { name: 'Failed', value: failureCount },
+               { name: 'Pending/Running', value: activeDeployments }
+            ]
+        });
     } catch (error) {
         console.error("Metrics Error:", error);
         res.status(500).json({ message: 'Server Error' });
     }
 };
 
-module.exports = { getDeployments, createDeployment, getDashboardMetrics };
+module.exports = { getDeployments, createDeployment, triggerDeployment, getDashboardMetrics };
