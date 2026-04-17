@@ -1,9 +1,13 @@
 const User = require("../models/User");
+const breaker = require("../services/circuitBreaker");
 
 const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("-password");
-    if (!user) {
+    const user = await breaker.fire(() =>
+      User.findById(req.user._id).select("-password"),
+    );
+
+    if (!user || user.success === false) {
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -16,8 +20,9 @@ const getUserProfile = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
-    if (!user) {
+    const user = await breaker.fire(() => User.findById(req.user._id));
+
+    if (!user || user.success === false) {
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -31,7 +36,7 @@ const updateUserProfile = async (req, res) => {
     if (typeof securityNotifications === "boolean")
       user.securityNotifications = securityNotifications;
 
-    await user.save();
+    await breaker.fire(() => user.save());
 
     res.json({
       id: user._id,
